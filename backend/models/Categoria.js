@@ -135,7 +135,7 @@ const Categoria = sequelize.define('Categoria', {
  * @returns {Promise<number>} - numero de subcategorias
  */
 Categoria.prototype.contarSubcategorias = async function() {
-    const  Subcategoria  = require('./Subcategoria');
+    const  Subcategoria  = require('./subcategoria');
     return await Subcategoria.count({ where: { categoriaId: this.id } });
 };
 

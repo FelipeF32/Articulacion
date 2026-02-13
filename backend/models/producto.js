@@ -18,7 +18,7 @@ const Producto = sequelize.define('Producto', {
     //campos de la tabla
     //id identificador unico (primary key)
     id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER, 
         primaryKey: true,
         autoIncrement: true,
         allowNull: false

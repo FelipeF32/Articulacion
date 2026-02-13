@@ -145,6 +145,6 @@ Categoria.prototype.contarSubcategorias = async function() {
  * @returns {Promise<number>} - numero de productos
  */
 Categoria.prototype.contarProductos = async function() {
-    const Producto  = require('./Producto');
+    const Producto  = require('./producto');
     return await Producto.count({ where: { categoriaId: this.id } });
 };

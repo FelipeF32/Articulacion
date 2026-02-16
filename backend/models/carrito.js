@@ -246,10 +246,42 @@ Carrito.obtenerCarritoUsuario = async function (usuarioId) {
         include: [
             {
                 model: Producto,
-                as: 'producto',
+                as: 'producto'
             }
-        ]
+        ],
+        order: [['createdAt', 'DESC']]
+    });
+};
+
+/**
+ * Metodo para calcular el total del carrito de un usuario
+ * @param {number} usuarioId - ID del usuario
+ * @return {Promise<number>} - Total del carrito
+ */
+Carrito.calcularTotalCarrito = async function (usuarioId) {
+    const items= await this.findAll({
+        where:{ usuarioId }
     })
-}
 
+    let total = 0;
+    for (const item of items) {
+        total += item.calcularSubtotal();
+    }
+    return total;
+};
 
+/**
+ * Metodo para vaciar el carrito de un usuario 
+ * util despues de reliazar un pedido 
+ * @param {number} usuarioId - ID del usuario
+ * @returns {Promise<number>} - Cantidad de items eliminados
+ */
+
+Carrito.vaciarCarrito = async function(usuarioId) {
+    return await this.destroy({
+        where: { usuarioId }
+    });
+};
+
+// Exportar el modelo
+module.exports = Carrito;

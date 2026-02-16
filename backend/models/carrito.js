@@ -9,8 +9,7 @@ const { DataTypes } = require('sequelize');
 
 //Importar instancia de sequelize
 const {sequelize} = require('../config/database');
-const { after } = require('node:test');
-const { table, timeStamp } = require('node:console');
+
 
 /**
  * Definir el modelo Carrito
@@ -149,66 +148,55 @@ const Carrito = sequelize.define('Carrito', {
 
         hooks:{
             /**
-             *beforeCreate - se ejecuta antes de crear una subcategoria
-             *verifica que la categoria padre este activa 
+             *beforeCreate - se ejecuta antes de un item en el carrito
+             *verifica que este activo y tenga stock suficiente para agregarlo al carrito
              */
 
-             beforeCreate: async (subcategoria) => {
-                const Categoria = require('./Categoria');
+             beforeCreate: async (itemCatrrito, options) => {
+                const Categoria = require('./Producto');
 
-                //buscar categoria padre
-                const categoria = await Categoria.findByPk(subcategoria.categoriaId);
+                //buscar producto
+                const producto = await Producto.findByPk(itemCarrito.productoId);
 
-                if (!categoria) {
-                    throw new Error('La cateoria seleccionada no existe');
+                if (!producto) {
+                    throw new Error('El producto seleccionado no existe');
 
                 }
 
-                if (!categoria.activo) {
-                    throw new Error('No se puede crear una subcategoria en una categoria inactiva');
+                if (!producto.activo) {
+                    throw new Error('No se puede crear agregar un producto inactivo al carrito');
                 }
+
+                if (!producto.hayStock(itemCarrito.cantidad)) {
+                    throw new Error(`Stock insuficiente, solo hay ${producto.stock} unidades diisponibles`);
+                }
+
+                //Guardar el precio actual del producto
+                itemCarrito.precioUnitario = producto.precio;
 
              },
 
               /**
-             *afterUpdate. se ejecuta despues de actualizar una categoria
-             *si se desactiva una categoria se desactivan todas sus subcategorias y productos
+             *beforeUpdate. se ejecuta antes de actualizar un carrito
+             *valida que haya stock suficiente si se aumenta la cantidad 
              */
 
             
-            afterUpdate: async (categoria, options) => {
+            BeforeUpdate: async (itemCarrito, options) => {
                 //verificar si el campo activo se cambio
-                if (categoria.changed('activo') && !categoria.activo) {
-                    console.log(`Desactivando categoria: ${categoria.nombre}`);
+                if (itemCarrito.changed('cantidad')) {
+                    const Producto = require('./Producto');
+                    const producto = await Producto.findByPk(itemCarrito.productoId);
 
-                    //Importar modelos (aqui para evitar dependencias circulares)
-                    const { Subcategoria } = require('./subcategoria');
-                    const producto = require('./Producto');
-                    
-                    try {
-                        //paso 1 desactivar las subcategorias de esta subcategoria
-                        
-
-                        //paso 2 desactivar los productos de esta categoria
-
-                        const productos = await producto.findAll({
-                            where: { categoriaId: categoria.id }
-
-                        });
-
-                        for (const producto of productos) {
-                            await producto.update({ activo: false }, { transaction: options.transaction });
-                            console.log(`Producto desactivado: ${producto.nombre}`);
-
+                    if (!producto) {
+                        throw new Error('El producto seleccionado no existe'); 
                     }
 
-                    console.log(`categoria y elementos relacionados desactivados correctamente`);
-                }catch (error) {
-                    console.error('Error al desactivar categoria y elementos relacionados:', error.message);
-                    throw error;
+                    if (!producto.hayStock(itemCarrito.cantidad)) {
+                        throw new Error(`Stock insuficiente, solo hay ${producto.stock} unidades disponibles`);
+                    }
                 }
-            }
-
+                    
         }
     }
 });
@@ -216,13 +204,52 @@ const Carrito = sequelize.define('Carrito', {
 // METODOS DE INSTANCIA
 
 /**
- * Metodo para contar subcategorias de esta categoria
+ * Metodo para calcular el subtotal de este item
  *
- * @returns {Promise<number>} - numero de subcategorias
+ * @returns {number} - Subtotal (precio * canridad)
  */
-Subcategoria.prototype.contarProductos = async function() {
-    const  Producto  = require('./Producto');
-    return await Producto.count({ where: { subcategoriaId: this.id } });
+Carrito.prototype.calcularSubtotal = async function() {
+    return parseFloat(this.precioUnitario) * this.cantidad;
+   
 };
+
+/**
+ * Metodo para actualizar la cantidad
+ * @param {number} nuevaCantidad - nueva cantidad
+ * @returns {Promise} Item actualizado *
+ */
+
+Carrito.prototype.actualizarCantidad = async function(nuevaCantidad) {
+    const Producto = require('./Producto');
+    const producto = await Producto.findByPk(this.productoId);
+
+    if (!producto.hayStock(nuevaCantidad)) {
+        throw new Error(`Stock insuficiente, solo hay ${producto.stock} unidades disponibles`);
+    }
+
+    this.cantidad = nuevaCantidad;
+    return await this.save();
+
+};
+
+/**
+ * Metodo para obtener el carrito completo de un usuario
+ * incluye informacion de los productos
+ * @param {number} usuarioId - ID del usuario
+ * @returns {Promise<Array>} - Items del carrito con prodsuctos 
+ */
+Carrito.obtenerCarritoUsuario = async function (usuarioId) {
+    const Produto = require('./Producto');
+
+    return await Carrito.findAll({
+        where: { usuarioId },
+        include: [
+            {
+                model: Producto,
+                as: 'producto',
+            }
+        ]
+    })
+}
 
 

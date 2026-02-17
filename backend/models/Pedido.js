@@ -360,23 +360,23 @@ Pedido.obtenerPorEstado = async function (estado) {
             }
         ],
         order: [['createdAt', 'DESC']]
-    })
+    });
 };
 
 
 
 /**
- * Metodo para vaciar el carrito de un usuario 
- * util despues de reliazar un pedido 
+ * Metodo para obtener historial de pedidos de un usuario
  * @param {number} usuarioId - ID del usuario
- * @returns {Promise<number>} - Cantidad de items eliminados
+ * @returns {Promise<Array>} - Pedidos del usuario 
  */
 
-Carrito.vaciarCarrito = async function(usuarioId) {
-    return await this.destroy({
-        where: { usuarioId }
+Pedido.obtenerHistorialUsuario = async function(usuarioId) {
+    return await this.findAll({
+        where: { usuarioId },
+        order: [['createdAt', 'DESC']]
     });
 };
 
 // Exportar el modelo
-module.exports = Carrito;
+module.exports = Pedido;

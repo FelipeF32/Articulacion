@@ -148,3 +148,6 @@ Categoria.prototype.contarProductos = async function() {
     const Producto  = require('./Producto');
     return await Producto.count({ where: { categoriaId: this.id } });
 };
+
+//Exportar el modelo Categoria
+module.exports = Categoria;

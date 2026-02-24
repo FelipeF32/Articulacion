@@ -12,7 +12,7 @@ const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 //funcion para crear la base de datos
-cosnt createDatabase = async () => {
+const createDatabase = async () => {
     let connection;
 
     try {

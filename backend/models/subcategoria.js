@@ -14,7 +14,7 @@ const {sequelize} = require('../config/database');
 /**
  * Definir el modelo Categoria
  */
-const Categoria = sequelize.define('Subcategoria', {
+const Subcategoria = sequelize.define('Subcategoria', {
     //Campos de la tabla
     //Id Indentificador unico (PRIMARY KEY)
     id: {

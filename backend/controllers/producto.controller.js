@@ -112,7 +112,7 @@ const getProductos = async (req, res) => {
  * @param {Object} res response express
  */
 
-const getProductosById = async (req, res) => {
+const getProductoById = async (req, res) => {
     try {
         const {id} = req.params;
 
@@ -517,24 +517,28 @@ const toggleProducto = async (req, res) => {
 };
 
 /**
- * eliminar subcategoria
+ * eliminar producto
  * DELETE /api/admin/subcategorias/:id
- * Solo permite eliminar si no tiene productos relacionados
+ * Elimina el produto y su imagen 
  * @param {Object} req request express
  * @param {Object} res request express
  */
-const eliminarSubategoria = async (req, res) => {
+const eliminarProducto = async (req, res) => {
     try {
         const {id} = req.params;
 
-        //buscar subcategoria
-        const subcategoria = await subcategoria.findByPk(id);
-            if (!subcategoria) {
+        //buscar producto
+        const producto = await Producto.findByPk(id);
+            if (!producto) {
                 return res.status(404).json({
                     success: false,
-                    message: 'Subcategoria no encontrada'
+                    message: 'producto no encontrado'
                 });
             }
+
+            // el hook beforeDestroy se ncarga de eliminar la imagen
+
+
 
             //validacion verificar que no tenga productos
             const productos = await producto.count({
@@ -544,9 +548,9 @@ const eliminarSubategoria = async (req, res) => {
             if (productos > 0) {
                 return res.status(400).json({
                     success: false,
-                    message: `no se puede eliminar la subcategoria porque tiene ${productos} productos asociados usa PATCH/api/admin/subcategorias/:id
-                    togle para desactivarla en lugar de eliminar
-`
+                    message: `no se puede eliminar la subcategoria porque tiene ${productos} 
+                    productos asociados usa PATCH/api/admin/subcategorias/:id
+                    togle para desactivarla en lugar de eliminar`
                 });
             }
 
@@ -570,101 +574,102 @@ const eliminarSubategoria = async (req, res) => {
 };
 
 /**
- * obtener estadisticas de una subcategoria
- * GET /api/admin/subcategorias/:id/estadisticas
- * retorna
- * total de productos activos / inactivos
- * valor total del inventario
- * stock total
- * @param {Object} req request express
- * @param {Object} res request express
+ * Actualizar stock de un Producto
+ * 
+ * PATCH /api/admin/productos/:id/stock
+ * body: {cantidad, operacion: 'aumentar' | 'reducir' | 'establecer'}
+ * @param {Objet} req request express
+ * @param {Objet} res response express
  */
-const getEstadisticasSubcategoria = async (req, res) => {
+
+const actualizarStock = async (req, res) => {
     try {
         const {id} = req.params;
-
-        //verificar que la subcategoria exista
-        const subcategoria = await subcategoria.findByPk(id [{
-            include:[{
-                model: Categoria,
-                as: 'categoria',
-                attributes: ['id','nombre']
-            }]
-        }]);
-
-        if (!subcategoria) {
-            return res.status(404).json({
+        const {cantidad, operacion} = req.body;
+        
+        if (!cantidad || !operacion) {
+            return res.status(400).json({
                 success: false,
-                message: 'subcategoria no encontrada'
+                message: 'Se requiere cantidad y operacion'
+            });
+        }
+       
+        const cantidadNUm = parseInt(cantidad);
+        if (cantidadNUm < 0 ) {
+            return res.status(400)({
+                success: false,
+                messag: 'La cantidad no puede ser negativa'
             });
         }
 
-        //contar productos
-        const totalProductos = await producto.count({
-            where: {subcategoriaId: id}
-        });
-        const productosActivos = await producto.count({
-            where: {subcategoriaId:  id, activo: true}
-        });
+        const producto = await Producto.findByPk(id);
+        if (!producto) {
+            return res.status(404).json({
+                success: false,
+                message: 'Producto no encontrado'
+            });
+        }
 
-        //obtener productos para calcular estadisticas
-        const productos = await producto.findAll({
-            where: {subcategoriaId: id},
-            attributes: ['precio', 'stock']
-        });
+        let nuevoStock;
 
-        //calcular estadisticas de inventario
-        let valorTotalInventario = 0;
-        let stockTotal = 0;
+        switch (operacion) {
+            case 'aumentar':
+                nuevoStock = producto.aumentarStock(cantidadNUm);
+                break; 
+            case 'reducir':
+                if (cantidadNUm > producto.stock) {
+                    return res.status(400).json({
+                        success: false,
+                        message: `No hay suficiente stock. stock actual: ${producto.stock}`
+                    });
+                }
+                nuevoStock = producto.reducirStock(cantidadNUm);
+                break;
+            case 'establece':
+                nuevoStock = cantidadNUm;
+                break;
+            default:
+                return res.status(400).json({
+                    success: false,
+                    messsage: 'Operacion invalida usa aumentar reducir o establecer'
+                });
+        }
 
-        productos.forEach(producto => {
-            valorTotalInventario += parseFloat(producto.precio) * producto.stock;
-        
-        });
 
-        //respuesta exitosa
+        producto.stock = nuevoStock;
+        await producto.save();
+
         res.json({
             success: true,
-            data: {
-                subcategoria: {
-                id: subcategoria.id,
-                nombre: subcategoria.nombre,
-                activo: subcategoria.activo,
-                categoria: subcategoria.categoria
-                },
-                estadisticas: {
-                    productos: {
-                        total: totalProductos,
-                        activas: productosActivos,
-                        inactivas: totalProductos - productosActivos
-                    },
-                    inventario: {
-                        stockTotal,
-                        valorTotal: valorTotalInventario.toFixed(2)
-                        
-                    //quitar decimales
-                    }
-                }
-            },
+            message: `Stock ${operacion === 'aumentar' ? 'reducido':
+                 operacion === 'reducir' ? 'reducido': 'establecido'} exitosamente`,
+                 data: {
+                    productoId: producto.id,
+                    nombre: producto.nombre,
+                    stockAnterior: operacion === 'establecer' ? null :
+                 (operacion === 'aumentar' ? producto.stock - cantidadNUm : producto.stock + cantidadNUm),
+                 stockNuevo: producto.stock
+                 }
         });
 
     } catch (error) {
-        console.error('error en getEstadisticasSubcategoria', error);
+        console.error('error en actualizarStock: ', error);
         res.status(500).json({
             success: false,
-            message: 'error al obtener estadisticas',
+            message: 'error al actializar stock',
             error: error.message
         });
     }
 };
 
+
 //exportar todos los controladores
 module.exports = {
-    getSubcategorias,
-    getSubcategoriasById,
-    crearSubcategoria,
-    actualizarSubcategoria,
-    toggleSubcategoria,
-    eliminarSubategoria,
-    getEstadisticasSubcategoria
+    getProductos,
+    getProductoById,
+    crearProducto,
+    actualizarProducto,
+    toggleProducto,
+    eliminarProducto,
+    actualizarStock
 };

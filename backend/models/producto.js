@@ -18,7 +18,7 @@ const Producto = sequelize.define('Producto', {
     //campos de la tabla
     //id identificador unico (primary key)
     id: {
-        type: DataTypes.INTEGER, 
+        type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
@@ -119,11 +119,11 @@ const Producto = sequelize.define('Producto', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'categorias', //nombre de la tabla subcategoria
+            model: 'subcategorias', //nombre de la tabla subcategoria
             key: 'id' //camo de la tabla relacionada
         },
         onUpdate: 'CASCADE', //si se actualiza el id, actualizar aca tambien
-        onDelete: 'CASCADE', //si se elimina la categoria, elimina esta subcategoria tambien
+        onDelete: 'CASCADE', //si se elimina la subcategoria, eliminar este producto tambien
         validate: {
             notNull: {
                 msg: 'Debe seleccionar una subcategoria'
@@ -144,7 +144,7 @@ const Producto = sequelize.define('Producto', {
 }, {
     //opciones del modelo
 
-    tableName: 'subcategorias',
+    tableName: 'productos',
     timestamps: true, //crea campos createdAt y updatedAt
 
     /**
@@ -199,12 +199,12 @@ subcategoria.findByPk(producto.subcategoriaId);
             }
 
             if (!categoria.activo) {
-                throw new Error('no se puede crear un producto en una categoria inactiva');
+                throw new Error('no se puede crear un producto en unacategoria inactiva');
             }
 
             //Validar que la subcategoria pretenezca a una categoria
             if (subcategoria.categoriaId !==producto.categoriaId) {
-                throw new Error ('La subcategoria no perteece a la categoria seleccionada');
+                throw new Error ('La subcategoria no perteece a lacategoria seleccionada');
             }
         },
 
@@ -217,7 +217,7 @@ subcategoria.findByPk(producto.subcategoriaId);
             if (producto.imagen) {
                 const {deletefile} = require('../config/multer');
                 //Intenta eliminar la imagen del servidor
-                const eliminado = await require('../config/multer');
+                const eliminado = await deletefile(producto.imagen);
                 if (eliminado) {
                     console.log (`imagen eliminada: ${producto.imagen}`);
                 }
@@ -232,7 +232,7 @@ subcategoria.findByPk(producto.subcategoriaId);
  * @param {number} cantidad - cantidad deseada
  * @returns {boolean} - true si hay stock suficiente false si no
  */
-producto.producto.hayStock = function(cantidad = 3) {
+Producto.hayStock = function(cantidad = 3) {
     return this.stock >= cantidad;
 };
 
@@ -243,8 +243,8 @@ producto.producto.hayStock = function(cantidad = 3) {
  * @returns {Promise<Producto>} producto actualizado
  */
 
-producto.prototype.reducirStock = async function (cantidad) {
-    if (this.hayStock(cantidad)) {
+Producto.prototype.reducirStock = async function (cantidad) {
+    if (!this.hayStock(cantidad)) {
         throw new Error('Stock insuficiente');
     }
     this.stock -= cantidad;

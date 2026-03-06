@@ -265,7 +265,7 @@ const actualizarUsuario = async (req, res) => {
 
 
 /**
- * Activar/Desactivar Categoria
+ * Activar/Desactivar usaurio
  * PATCH /api/admin/categoria/:id/estado
  *
  * Al desactivar una categoria se desactivan todas las subcategorias
@@ -274,19 +274,38 @@ relacionadas
  * @param {Object} req request Express
  * @param {Object} res response Express
  */
-const toggleCategoria = async (req, res) => {
+const toggleUsuario = async (req, res) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
 
-        //Buscar categoria
-        const categoria = await Categoria.findByPk(id);
+        //Buscar usaurio
+        const usuario = await Usuario.findByPk(id);
 
-        if (!categoria) {
+        if (!usuario) {
             return res.status(404).json({
                 succes: false,
-                message: 'Categoria no encontrada'
+                message: 'Usuario no encontrado'
             });
         }
+
+        // no permitir desactivar el propio admin
+        if (usuario.id === req.usuario.id) {
+            return res.status(400).json({
+                success: false,
+                message: 'No puedes desactivar tu propia cuenta' 
+            });
+        }
+
+        usuario.activo = !usuario.activo;
+        await usuario.save();
+
+        res.json({
+            success: true,
+            message: `Usuario ${usuario.activo ? 'activado': 'desactivado'} exitosamente`,
+            data: {
+                usaurio: usaurio.toJSON()
+            }
+        });
 
         //Allternar estado activo
         const nuevoEstado = !categoria.activo;

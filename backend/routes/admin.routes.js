@@ -51,46 +51,55 @@ router.get('/categorias/:id', categoriaController.eliminarCategoria);
 
 
 
+
+/**************************************************************** */
+
+
+
 //Rutas de subcategorias
-// get /api/admin/categorias
+// get /api/admin/subcategorias
 router.get('/subcategorias', subcategoriaController.getSubcategorias);
 
-// get /api/admin/categorias
+// get /api/admin/subcategorias
 router.get('/subcategorias/:id', subcategoriaController.getSubcategoriaById);
 
-// get /api/admin/categorias/:id/stats
+// get /api/admin/subcategorias/:id/stats
 router.get('/subcategorias:id/stats', subcategoriaController.getEstadisticasSubcategoria);
 
-// POST /api/admin/categorias
+// POST /api/admin/subcategorias
 router.post('/subcategorias', subcategoriaController.crearSubcategoria);
 
-// PUT /api/admin/categorias
+// PUT /api/admin/subcategorias
 router.put('/subcategorias', subcategoriaController.actualizarSubcategoria);
 
-// patch /api/admin/categorias:id / toggle desactivar o activar categoria
+// patch /api/admin/subcategorias:id / toggle desactivar o activar categoria
 router.patch('/subcategorias', subcategoriaController.toggleSubcategoria);
 
-// delete /api/admin/categorias
+// delete /api/admin/subcategorias
 router.get('/subcategorias/:id', subcategoriaController.eliminarSubcategoria);
 
 
+
+/******************************************************************* */
+
+
 //Rutas de producto
-// get /api/admin/categorias
+// get /api/admin/producto
 router.get('/productos', productoController.getProductos);
 
-// get /api/admin/categorias
+// get /api/admin/producto
 router.get('/productos/:id', productoController.getProductoById);
 
-// get /api/admin/categorias/:id/stats
+// get /api/admin/producto/:id/stats
 //router.get('/productos:id/stats', productoController.getEstadisticasProducto);
 
-// POST /api/admin/categorias
+// POST /api/admin/producto
 router.post('/productos', productoController.crearProducto);
 
-// PUT /api/admin/categorias
+// PUT /api/admin/producto
 router.put('/productos', productoController.actualizarProducto);
 
-// patch /api/admin/categorias:id / stock
+// patch /api/admin/producto:id / stock
 router.patch('/productos', productoController.toggleProducto);
 
 // delete /api/admin/productos/:id
@@ -98,24 +107,53 @@ router.get('/productos/:id', productoController.eliminarProducto);
 
 
 
+/************************************************************************************** */
+
 //Rutas de usuario
-// get /api/admin/categorias
+// get /api/admin/usuario
 router.get('/usuarios', usuarioController.getUsuarios);
 
-// get /api/admin/categorias
+// get /api/admin/usuario
 router.get('/usuarios/:id', usuarioController.getUsuariosById);
 
-// get /api/admin/categorias/:id/stats
+// get /api/admin/usuario/:id/stats
 router.get('/usuarios:id/stats', usuarioController.getEstadisticasUsuario);
 
-// POST /api/admin/categorias
+// POST /api/admin/usuario
 router.post('/usuarios', usuarioController.crearUsuario);
 
-// PUT /api/admin/categorias
-router.put('/usuarios', usuarioController.actualizarUsuario);
+// PUT /api/admin/usuario
+router.put('/usuarios/:id', usuarioController.actualizarUsuario);
 
 // patch /api/admin/usuario:id / toggle desactivar o activar usuario
-router.patch('/usuarios', usuarioController.toggleUsuario);
+router.patch('/usuarios/:id/toggle', usuarioController.toggleUsuario);
 
 // delete /api/admin/usuario
 router.get('/usuarios/:id', usuarioController.eliminarUsuario);
+
+
+/*************************************************** */
+
+//rutas de pedidos
+// get /api/admin/pedido
+router.get('/pedido', pedidoController.getAllPedidos);
+
+// get /api/admin/pedido
+router.get('/pedido/:id', pedidoController.actualizarEstadoPedido);
+
+// get /api/admin/pedido/:id/stats
+router.get('/pedido:id/stats', pedidoController.getEstadisticasPedidos);
+
+// POST /api/admin/pedido
+router.post('/pedido', pedidoController.crearPedido);
+
+// PUT /api/admin/pedido
+router.put('/pedido', pedidoController.getMisPedidos);
+
+// patch /api/admin/pedido:id / stock
+router.patch('/pedido', pedidoController.getPedidoById);
+
+// delete /api/admin/pedido/:id
+router.get('/pedido/:id', pedidoController.cancelarPedido);
+
+module.exports = router;

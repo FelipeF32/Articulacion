@@ -8,7 +8,7 @@
  * importar modelos
  */
 
-const Subcategoria = require('../models/subcategoria');
+const Subcategoria = require('../models/Subcategoria');
 const Categoria = require('../models/Categoria');
 const Producto = require('../models/Producto');
 
@@ -274,7 +274,7 @@ const getCategorias = async (req, res) => {
  * @param {Object} res response express
  */
 
-const getSubcategoriasporcategorias = async (req, res) => {
+const getSubcategoriasPorCategorias = async (req, res) => {
     try {
         const {id} = req.params;
         const { Op } = require('sequelize');
@@ -416,6 +416,6 @@ module.exports = {
     getProductos,
     getProductosById,
     getCategorias,
-    getSubcategoriasporcategorias,
+    getSubcategoriasPorCategorias,
     getProductosDestacados,
 };

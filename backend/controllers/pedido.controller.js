@@ -645,5 +645,6 @@ module.exports =  {
     cancelarPedido,
     //admin
     getAllPedidos,
-    actualizarEstadoPedido
+    actualizarEstadoPedido,
+    getEstadisticasPedidos
 };

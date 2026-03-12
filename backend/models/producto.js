@@ -8,8 +8,7 @@ const { DataTypes } = require('sequelize');
 
 //importar instancia de sequelize
 const { sequelize } = require('../config/database');
-const { table } = require('console');
-const { type } = require('os');
+
 
 /**
  * definir el modelo de producto
@@ -32,8 +31,8 @@ const Producto = sequelize.define('Producto', {
                 msg: 'El nombre del producto no puede estar vacio'
             },
             len:{
-                args: [2,200],
-                msg: 'el nombre debe tener entre 2 y 200 caracteres'
+                args: [3,200],
+                msg: 'el nombre debe tener entre 3 y 200 caracteres'
             }
         }
     },
@@ -48,7 +47,7 @@ const Producto = sequelize.define('Producto', {
 
     //Precio del producto
     precio:{
-        type: DataTypes.DECIMAL(10,2), //hasta 99,999,
+        type: DataTypes.DECIMAL(10,2), //hasta 99,999,999.99
         allowNull: false,
         validate: {
             isDecimal: {
@@ -227,6 +226,26 @@ subcategoria.findByPk(producto.subcategoriaId);
 });
 
 /**
+ * metodo para obtebner url completa de la imagen
+ * 
+ * @return {string|null} - url de la imagen
+ */
+Producto.prototype.obtenerUrlImagen = function() {
+    if (this.imagen) {
+        return null;
+    }
+    const baseUrl = process.env.FRONTEND_URL || 'https://localhost:5000';
+    return `${baseUrl} /uploads/${this.imagen}`;
+};
+
+
+
+
+
+
+
+
+/**
  * metodo para verificar si hay stock disponible
  *
  * @param {number} cantidad - cantidad deseada
@@ -250,7 +269,19 @@ Producto.prototype.reducirStock = async function (cantidad) {
     this.stock -= cantidad;
     return await this.save();
 
-}
+};
+
+/**
+ * Metodo para aumebntar el stock
+ * util al recibir una venta o al actualizar invetario
+ * @param {number} cantidad - cantidad a aumentar
+ * @returns {Promise<Producto>} producto acutualizado
+ */
+
+Producto.prototype.aumentarStock = async function(cantidad) {
+    this.stock += cantidad;
+    return await this.save();
+};
 
 //exportar modelo producto
 module.exports = Producto;

@@ -86,7 +86,7 @@ const DetallePedido = sequelize.define('DetallePedido', {
             key: 'id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'RESTRICT', // no se puede eliminar productos en pedidos asociados con pedidos
+        onDelete: 'RESTRICT', // no se puede eliminar productos asociado a un pedido ya que esta pago
         validate: {
             notNull: {
                 msg: 'Debe especificar su producto'

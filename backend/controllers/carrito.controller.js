@@ -91,7 +91,6 @@ const agregarAlCarrito = async (req, res) => {
         //validacion 1 : Campos requeridos
         if (!productoId) {
             return res.status(400).json({
-
                 success: false,
                 message: 'El productoId es requerido'
             });
@@ -99,8 +98,8 @@ const agregarAlCarrito = async (req, res) => {
 
 
         // validacion 2 cantidad valida
-        const cantidadNUm = parseInt (cantidad);
-        if (cantidadNUm < 1) 
+        const cantidadNum = parseInt (cantidad);
+        if (cantidadNum < 1) 
             return res.status(400).json ({
         success : false,
         message: 'la cantidad debe ser al menos 1'
@@ -126,7 +125,7 @@ const agregarAlCarrito = async (req, res) => {
 
     // Validacion 4 verificar si ya existe en el carrito 
 
-    const itemExistente = await Carrito.findOne ({
+    const itemExistente = await Carrito.findOne({ // un carrito a la vez, no se usa el mismo, pero solo se puede un carito por persona
         where: {
             usuarioId: req.usuario.id,
             productoId
@@ -136,7 +135,7 @@ const agregarAlCarrito = async (req, res) => {
     if (itemExistente) {
         //actualizar cantidad
         const nuevaCantidad = itemExistente.cantidad
-        + xantidadNum;
+        + cantidadNum;
 
         // validar stock disponible
         if (nuevaCantidad > producto.stock) {
@@ -167,7 +166,7 @@ const agregarAlCarrito = async (req, res) => {
         }
 
         //Validacion 5 stock disponible
-        if (cantidadNUm > producto.stock) {
+        if (cantidadNum > producto.stock) {
             return res.status(400).json({
                 success: false,
                 message: `Stock insuficiente. Disponible: ${producto.stock}`
@@ -178,7 +177,7 @@ const agregarAlCarrito = async (req, res) => {
         const nuevoItem = await Carrito.create({
             usuarioId: req.usuario.id,
             productoId,
-            cantidad: cantidadNUm,
+            cantidad: cantidadNum,
             PrecioUnitario: producto.precio
         });
 

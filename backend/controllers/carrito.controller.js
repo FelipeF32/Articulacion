@@ -24,7 +24,7 @@ const getCarrito = async (req, res ) => {
             where: { usuarioId: req.usuario.id },
             include: [
                 {
-                    model: producto,
+                    model: Producto,
                     as: 'producto',
                     attributes: ['id', 'nombre', 'descripcion', 'precio', 'stock', 'imagen', 'activo'],
                     include: [
@@ -34,7 +34,7 @@ const getCarrito = async (req, res ) => {
                             attributes: ['id', 'nombre']
                         },
                         {
-                            model: Subcategoriaategoria,
+                            model: Subcategoria,
                             as: 'subcategoria',
                             attributes: ['id', 'nombre']
                         },
@@ -46,9 +46,9 @@ const getCarrito = async (req, res ) => {
         });
 
         //Calcular el total del carrito
-        let totalCarrito = 0;
+        let total = 0;
         itemsCarrito.forEach (item => {
-            total =+ parseFloat(item.PrecioUnitario) *
+            total += parseFloat(item.PrecioUnitario) *
             item.cantidad;
         });
 
@@ -60,7 +60,7 @@ const getCarrito = async (req, res ) => {
                 resumen: {
                 totalItem: itemsCarrito.length,
                 cantidadTotal: itemsCarrito.reduce((sum, item) => sum + item.cantidad, 0),
-                totalCarrito: total.tofixed(2)
+                total: total.tofixed(2)
             }
             }
         });

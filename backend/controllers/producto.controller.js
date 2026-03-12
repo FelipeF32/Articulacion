@@ -48,6 +48,17 @@ const getProductos = async (req, res) => {
         if (activo !== undefined) where.activo = activo === 'true';
         if (conStock === 'true') where.stock = {[require('sequelize').Op.gt]: 0};
 
+
+        if (buscar) {
+            const {Op} = require('sequelize');
+            //Op.or busca por nombre o descripcion
+            //Op.like equivale a un like en sql con comodines para buscar coincidencias parciales
+            where[Op.or] = [
+                {nombre: {[Op.like]: `%${buscar}%`}},
+                {descripcion: {[Op.like]: `%${buscar}%`}}
+            ];
+        }
+
         //paginacion
         const offset = (parseInt(pagina) -1) * parseInt(limite);
 

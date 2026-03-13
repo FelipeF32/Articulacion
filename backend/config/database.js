@@ -54,9 +54,9 @@ const testDBConnection = async () => {
         console.log('Conexion a MySQL establecida correctamente');
         return true;
     } catch (error) {
-        console.error('X error al conectar a MySQL:',
+        console.error('X Error al conectar a MySQL:',
         error.message); //si hay un error al conectar se muestra el mensaje de error
-        console.error('X verifica que XAMPP erste corriendo y las credenciales en .env sean correctas'); //
+        console.error('X Verifica que XAMPP este corriendo y las credenciales en .env sean correctas'); //
         return false;
     }}
 

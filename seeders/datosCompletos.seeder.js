@@ -131,7 +131,10 @@ const seedDatosCompletos = async () => {
 
       const categorias = [];
       for (const catData of categoriasData) {
-        const categoria = await Categoria.create(catData);
+        const categoria = await Categoria.create({
+          ...catData,
+          activo: true
+        });
         categorias.push(categoria);
         console.log(`   ✅ ${categoria.nombre}`);
       }

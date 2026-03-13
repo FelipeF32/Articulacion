@@ -36,60 +36,34 @@ const DetallePedido = sequelize.define('DetallePedido', {
         allowNull: false,
         references: {
 
-            model: 'Usuarios',
+            model: 'pedidos',
             key: 'id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE', // si se elimina el usuario se elimina el carrito
+        onDelete: 'CASCADE', // si se elimina el pedido se elimina el detalle
         validate: {
             notNull: {
-                msg: 'Debe especificar su usuario'
+                msg: 'Debe especificar el pedido'
 
             }
 
         }
     },
-    
-    nombre: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-        unique : {
-            msg: 'Ya existe una categoria con ese nombre'
-        },
-        validate : {
-            notEmpty: {
-                msg: 'El nombre de la categoria no puede estar vacio'
-            },
-            len: {
-                args: [2, 100],
 
-            }
-        }
-    },
-
-    /**
-     * descripcion de la categoria
-     */
-
-    descripcion: {
-        type: DataTypes.TEXT,
-        allowNull: true
-    },
-
-     // Producto ID del producto en el carrito 
+     // Producto ID del producto en el detalle 
     productoId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
 
-            model: 'Productos',
+            model: 'productos',
             key: 'id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'RESTRICT', // no se puede eliminar productos asociado a un pedido ya que esta pago
         validate: {
             notNull: {
-                msg: 'Debe especificar su producto'
+                msg: 'Debe especificar el producto'
 
             }
 

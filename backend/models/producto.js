@@ -160,7 +160,7 @@ const Producto = sequelize.define('Producto', {
         },
         {
             //indice para buscar productos activos
-            fields: ['Activos']
+            fields: ['activo']
         },
         {
             //indice para buscar productos por nombre

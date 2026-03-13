@@ -22,7 +22,7 @@ require('dotenv').config();
 const dbconfig = require('./config/database');
 
 //importar modelos y asociaciones 
-const { intitAssociations } = require('./models');
+const { initAssociations } = require('./models');
 
 //importar seeders
 const { runSeeders } = require('../seeders/adminSeeder');
@@ -172,7 +172,7 @@ const startServer = async () => {
         console.log('Sincronizando los modelos con labase de datos...');
 
         //inicializar asociaciones entre los modelos
-        intitAssociations();
+        initAssociations();
         // en desarrollo alter puede ser un true para actualizar la estructura
         //en produccion debe ser false para no perder los datos
 
@@ -209,8 +209,10 @@ process.on('SIGINT', () => {
     process.exit(1);
 });
 
-// iniciar servidor 
-startServer();
+// iniciar servidor solo si se ejecuta directamente
+if (require.main === module) {
+    startServer();
+}
 
 // exportar app para testing
 module.exports = app;

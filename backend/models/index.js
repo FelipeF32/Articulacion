@@ -149,13 +149,13 @@ Pedido.belongsTo(Usuario, {
  */
 
 Pedido.hasMany(DetallePedido, {
-    foreignKey: 'PedidoId', // Campo que conecta las tablas
+    foreignKey: 'pedidoId', // Campo que conecta las tablas
     as: 'detalles', // Alias para la relación
     onDelete: 'CASCADE', // Si se elimina un pedido se eliminan sus detalles de pedido
     onUpdate: 'CASCADE' // Si se actualiza un pedido se actualizan sus detalles de pedido
 });
 DetallePedido.belongsTo(Pedido, {
-    foreignKey: 'PedidoId', // Campo que conecta las tablas
+    foreignKey: 'pedidoId', // Campo que conecta las tablas
     as: 'pedido', // Alias para la relación
     onDelete: 'CASCADE', // Si se elimina un pedido se elimina su detalle de pedido
     onUpdate: 'CASCADE' // Si se actualiza un pedido se actualiza su detalle de pedido
@@ -211,7 +211,7 @@ Producto.belongsToMany(Pedido, {
  * se llama desde server.js despues de carar los modelos
  */
 
-const inAssociations = () => {
+const initAssociations = () => {
     console.log('Asociaciones entre los modelos establecidas correctamente');
 };
 
@@ -224,6 +224,6 @@ module.exports = {
     Carrito,
     Pedido,
     DetallePedido,
-    inAssociations
+    initAssociations
 };
 

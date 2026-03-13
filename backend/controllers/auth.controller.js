@@ -203,7 +203,7 @@ const login = async (req, res) => {
  * headers: { Authorization: 'Bearer TOKEN' }
  */
 
-const getMe= async (res, res) => {
+const getMe= async (req, res) => {
     try {
         //el usuario ya esta en req.usuario 
         const usuario = await Usuario.findByPk(req.usuario.id, {

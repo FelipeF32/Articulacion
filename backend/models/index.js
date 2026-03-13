@@ -192,13 +192,13 @@ DetallePedido.belongsTo(Producto, {
  * Una subcategoria pertenece a una categoria
  */
 
-Pedido.hasMany(Producto, {
+Pedido.belongsToMany(Producto, {
     through: DetallePedido, // tabla intyermedia que conecta las tablas
     foreignKey: 'pedidoId', // Campo que conecta las tablas
     otherKey: 'productoId', // Campo que conecta las tablas
     as: 'productos', // Alias para la relación
 });
-Producto.hasMany(Pedido, {
+Producto.belongsToMany(Pedido, {
     through: DetallePedido, // Campo que conecta las tablas
     foreignKey: 'productoId', // Campo que conecta las tablas
     otherKey: 'pedidoId', // Campo que conecta las tablas
